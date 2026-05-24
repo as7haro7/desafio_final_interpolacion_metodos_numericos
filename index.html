@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biomecánica Matemática de las Aves Paceñas</title>
+    <meta name="description"
+        content="Estudio biomecánico del vuelo del Cernícalo Americano mediante Splines Cúbicos, Matriz Inversa y Análisis de Fourier.">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Prism.js (Tomorrow Night — legible en bloques oscuros) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <!-- MathJax -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="#inicio" class="nav-link">Inicio</a>
+            <a href="#fase0" class="nav-link">El Ave</a>
+            <a href="#fase1" class="nav-link">Visión Artificial</a>
+            <a href="#fase2" class="nav-link">Splines</a>
+            <a href="#fase3" class="nav-link">Fourier</a>
+            <a href="#fase4" class="nav-link">Simulación</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- ═══════════════════════════════════════
+             HERO
+             ═══════════════════════════════════════ -->
+        <header class="hero" id="inicio">
+            <div class="hero-institution">
+                <span class="hero-university">Universidad Mayor de San Andrés</span>
+                <span class="hero-faculty">Facultad de Ciencias Puras y Naturales</span>
+                <span class="hero-career">Carrera de Informática</span>
+            </div>
+            <img src="assets/umsa_logo.png" alt="Escudo UMSA" class="hero-logo">
+            <div class="hero-divider"></div>
+            <span class="hero-badge">Métodos Numéricos — Desafío Final</span>
+            <h1>Biomecánica Matemática<br>de las Aves Paceñas</h1>
+            <p class="hero-subtitle">Modelado exhaustivo del vuelo del Cernícalo Americano:
+                extracción automática de datos, interpolación con Splines Cúbicos (Matriz Inversa)
+                y análisis espectral de Fourier.</p>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">Estudiante</span>
+                    <span class="hero-meta-value">Univ. Poma Condori Erick Fernando</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">Docente</span>
+                    <span class="hero-meta-value">Lic. Brigida Carvajal Blanco</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span class="hero-meta-label">Gestión</span>
+                    <span class="hero-meta-value">I / 2026</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══════════════════════════════════════
+             FASE 0 — EL AVE
+             ═══════════════════════════════════════ -->
+        <section id="fase0">
+            <div class="card">
+                <span class="section-tag">Fase 0</span>
+                <h2>El Sujeto de Estudio: Cernícalo Americano</h2>
+
+                <div class="bio-hero">
+                    <div>
+                        <p>El <strong>Cernícalo Americano</strong> (<em>Falco sparverius</em>) es el halcón
+                            más pequeño y abundante del continente americano. En los cielos de <strong>La Paz,
+                                Bolivia</strong>,
+                            se le puede observar frecuentemente planeando sobre los valles y laderas de la ciudad,
+                            aprovechando las corrientes térmicas andinas.</p>
+
+                        <p>Lo que hace a esta especie extraordinariamente interesante para un estudio de métodos
+                            numéricos
+                            es su capacidad de realizar <strong>vuelo cernido (<em>hovering</em>)</strong>: un
+                            modo de vuelo estacionario donde el ave se mantiene suspendida en un punto fijo del espacio,
+                            batiendo sus alas a alta frecuencia mientras mantiene la cabeza completamente inmóvil
+                            para localizar a sus presas.</p>
+
+                        <div class="bio-facts">
+                            <div class="fact">
+                                <span class="fact-value">22–31</span>
+                                <span class="fact-label">Longitud (cm)</span>
+                            </div>
+                            <div class="fact">
+                                <span class="fact-value">50–61</span>
+                                <span class="fact-label">Envergadura (cm)</span>
+                            </div>
+                            <div class="fact">
+                                <span class="fact-value">80–165</span>
+                                <span class="fact-label">Peso (g)</span>
+                            </div>
+                            <div class="fact">
+                                <span class="fact-value">~6 Hz</span>
+                                <span class="fact-label">Frec. Aleteo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bio-image-wrapper">
+                        <img src="assets/cernicalo_info1.jpg" alt="Cernícalo Americano en pleno vuelo cernido">
+                    </div>
+                </div>
+
+                <h3>El Cernícalo en Bolivia</h3>
+
+                <div class="bolivia-grid">
+                    <div class="bolivia-card">
+                        <div class="bolivia-card-img">
+                            <img src="assets/cernicalo_lapaz.png" alt="Cernícalo sobre La Paz">
+                        </div>
+                        <div class="bolivia-card-body">
+                            <h4>Hábitat en La Paz</h4>
+                            <p>Se le observa sobrevolando los cañones urbanos de la hoyada paceña,
+                                desde la zona Sur hasta El Alto. Utiliza postes, cables de luz
+                                y cornisas de edificios como perchas de caza. Opera entre los
+                                <strong>2.800 y 4.200 m.s.n.m.</strong>, adaptado perfectamente
+                                a la baja presión del altiplano.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bolivia-card">
+                        <div class="bolivia-card-img">
+                            <img src="assets/cernicalo_caza.png" alt="Cernícalo cazando en el altiplano">
+                        </div>
+                        <div class="bolivia-card-body">
+                            <h4>Técnica de Caza: Vuelo Cernido</h4>
+                            <p>Su capacidad de <strong>hovering</strong> (suspenderse en el aire) lo convierte
+                                en un depredador único. Bate las alas a ~6 Hz mientras mantiene la cabeza
+                                inmóvil, detectando insectos y roedores con su
+                                <strong>visión ultravioleta</strong> desde 10–30 m de altura.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bolivia-card">
+                        <div class="bolivia-card-img">
+                            <img src="assets/cernicalo_portrait.jpg" alt="Retrato del Cernícalo">
+                        </div>
+                        <div class="bolivia-card-body">
+                            <h4>Distribución en Bolivia</h4>
+                            <p>Presente en todo el territorio boliviano: altiplano, valles interandinos,
+                                yungas y llanos orientales. En <strong>La Paz, Cochabamba y El Alto</strong>
+                                es la rapaz más visible en zonas periurbanas. Su nombre quechua-aymara
+                                local es <em>killichu</em>.</p>
+                        </div>
+                    </div>
+
+                    <div class="bolivia-card">
+                        <div class="bolivia-card-img">
+                            <img src="assets/cernicalo_hovering.png" alt="Cernícalo en vuelo">
+                        </div>
+                        <div class="bolivia-card-body">
+                            <h4>Importancia para el Estudio</h4>
+                            <p>El aleteo periódico del vuelo cernido genera una <strong>señal biomecánica
+                                    limpia y repetitiva</strong>, ideal para modelar con Splines Cúbicos
+                                y analizar con Fourier. Su frecuencia biológica documentada es de
+                                <strong>5.0–7.5 Hz</strong> (Tobalske et al., 2003).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════
+             FASE 1 — VISIÓN ARTIFICIAL
+             ═══════════════════════════════════════ -->
+        <section id="fase1">
+            <div class="card">
+                <span class="section-tag green">Fase 1</span>
+                <h2>Extracción de Datos con Visión Artificial</h2>
+                <p>Construimos un tracker automatizado que aísla la silueta del ave en los <strong>120 frames</strong>
+                    del video mediante umbralización y morfología matemática en Python (OpenCV). De cada frame se
+                    extraen <strong>100 puntos equiespaciados</strong> del contorno.</p>
+
+                <div class="code-box">
+                    <div class="code-header">tracking_frames.py — Segmentación</div>
+                    <pre><code class="language-python">def segmentar_ave(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    mask = cv2.inRange(gray, 0, 114)  # Umbral empírico
+    k3 = np.ones((3,3), np.uint8)
+    k7 = np.ones((7,7), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, k3, iterations=1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k7, iterations=3)
+    return mask</code></pre>
+                </div>
+
+                <h3>Explorador Interactivo de Frames</h3>
+                <p>Desliza el control para recorrer los frames del video. A la izquierda se muestra la
+                    <strong>máscara binaria</strong> generada por el algoritmo; a la derecha, los 100 puntos
+                    extraídos superpuestos sobre la <strong>fotografía original</strong>.
+                </p>
+
+                <!-- Slider 1 -->
+                <div class="slider-container">
+                    <label for="slider-1" class="slider-label" id="slider-label-1">Muestra: 0 | Tiempo: 0.00s</label>
+                    <input type="range" id="slider-1" min="0" max="19" value="0" class="slider">
+                </div>
+
+                <div class="cv-dashboard">
+                    <div class="cv-panel">
+                        <div class="cv-panel-header">Mascara Binaria (OpenCV)</div>
+                        <div class="cv-panel-body" style="background:#000;">
+                            <img id="img-mask" src="assets/frames/mask_0.jpg" alt="Mascara binaria">
+                        </div>
+                    </div>
+                    <div class="cv-panel">
+                        <div class="cv-panel-header">100 Puntos Extraidos sobre Foto Original</div>
+                        <div class="cv-panel-body">
+                            <div id="plotly-cv"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Tabla de Coordenadas Crudas</h3>
+                <p>Valores numéricos absolutos (píxeles) que alimentan la interpolación matemática.</p>
+                <div class="data-table-container" id="raw-data-table">Cargando datos...</div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════
+             FASE 2 — SPLINES
+             ═══════════════════════════════════════ -->
+        <section id="fase2">
+            <div class="card">
+                <span class="section-tag">Fase 2</span>
+                <h2>Interpolación Analítica: Splines Cúbicos</h2>
+                <p>Los 100 puntos crudos forman un polígono discreto. Para obtener una curva suave con
+                    continuidad $C^2$, construimos un sistema matricial $A \cdot c = b$ y lo resolvemos
+                    calculando explícitamente la <strong>Matriz Inversa</strong> ($A^{-1}$),
+                    siguiendo la metodología de clase.</p>
+
+                <h3>Paso 1 — Definición del Polinomio</h3>
+                <div class="formula-block">
+                    <span class="formula-label">Spline Cúbico</span>
+                    $$ S_i(x) = a_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3 $$
+                    <p class="formula-note">Donde $a_i = y_i$ y los coeficientes $b_i, c_i, d_i$ se determinan
+                        imponiendo continuidad $C^0$, $C^1$ y $C^2$.</p>
+                </div>
+
+                <h3>Paso 2 — Ensamblaje de la Matriz Tridiagonal</h3>
+                <p>Las condiciones de continuidad generan un sistema tridiagonal simétrico. Con frontera natural ($c_0 =
+                    c_n = 0$):</p>
+                <div class="formula-block">
+                    <span class="formula-label">Sistema Matricial</span>
+                    $$
+                    \underbrace{\begin{pmatrix}
+                    2(h_0+h_1) & h_1 & 0 & \cdots \\
+                    h_1 & 2(h_1+h_2) & h_2 & \cdots \\
+                    \vdots & & \ddots & \vdots \\
+                    0 & \cdots & h_{n-2} & 2(h_{n-2}+h_{n-1})
+                    \end{pmatrix}}_{A}
+                    \begin{pmatrix} c_1 \\ c_2 \\ \vdots \\ c_{n-1} \end{pmatrix}
+                    =
+                    \underbrace{\begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_{n-1} \end{pmatrix}}_{b}
+                    $$
+                    <p class="formula-note">$h_i = x_{i+1} - x_i$, y cada componente del vector $b$ es
+                        $3\left(\frac{y_{i+2}-y_{i+1}}{h_{i+1}} - \frac{y_{i+1}-y_i}{h_i}\right)$.</p>
+                </div>
+
+                <h3>Paso 3 — Resolución por Matriz Inversa</h3>
+                <div class="formula-block">
+                    <span class="formula-label">Solución Explícita</span>
+                    $$ c = A^{-1} \cdot b $$
+                </div>
+
+                <div class="code-box">
+                    <div class="code-header">splines_frames.py — Resolución</div>
+                    <pre><code class="language-python"># 1. Armar Matriz A
+A = np.zeros((sz, sz))
+for i in range(sz):
+    A[i, i] = 2 * (h[i] + h[i+1])
+    if i > 0: A[i, i-1] = h[i]
+    if i < sz - 1: A[i, i+1] = h[i+1]
+
+# 2. Armar Vector b
+rhs = np.zeros(sz)
+for i in range(sz):
+    rhs[i] = 3 * ((y[i+2] - y[i+1])/h[i+1] - (y[i+1] - y[i])/h[i])
+
+# 3. Hallar Matriz Inversa y multiplicar
+inv_A = np.linalg.inv(A)
+c_inner = np.dot(inv_A, rhs)</code></pre>
+                </div>
+
+                <h3>Paso 4 — Coeficientes Derivados</h3>
+                <div class="formula-block">
+                    <span class="formula-label">Fórmulas de Coeficientes</span>
+                    $$ d_i = \frac{c_{i+1} - c_i}{3\,h_i} \qquad b_i = \frac{y_{i+1} - y_i}{h_i} -
+                    \frac{h_i}{3}\left(2c_i + c_{i+1}\right) $$
+                </div>
+
+                <h3>Visualización Interactiva: Puntos vs Spline</h3>
+                <p>Mueve el slider para ver en tiempo real cómo la curva analítica atraviesa suavemente
+                    todos los puntos discretos. Puedes hacer <strong>zoom</strong> dentro del gráfico.</p>
+
+                <!-- Slider 2 -->
+                <div class="slider-container">
+                    <label for="slider-2" class="slider-label" id="slider-label-2">Muestra: 0 | Tiempo: 0.00s</label>
+                    <input type="range" id="slider-2" min="0" max="19" value="0" class="slider">
+                </div>
+
+                <div id="plotly-spline" class="chart-full" style="height:600px;"></div>
+
+                <h3>Validación de Continuidad $C^1$ y $C^2$</h3>
+                <p>Los vectores tangentes (verde) y de curvatura (rojo) confirman que no existen
+                    discontinuidades en las derivadas primera ni segunda a lo largo del contorno.</p>
+                <div class="media-container">
+                    <img src="assets/fig1_spline_continuidad.png" alt="Validación de continuidad C1 y C2">
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════
+             FASE 3 — FOURIER
+             ═══════════════════════════════════════ -->
+        <section id="fase3">
+            <div class="card">
+                <span class="section-tag purple">Fase 3</span>
+                <h2>Análisis Espectral: Transformada de Fourier</h2>
+
+                <h3>Definición de la Señal Biomecánica</h3>
+                <p>A partir del bounding box y los contornos suavizados, extraemos la amplitud
+                    del aleteo $H(t_i)$ midiendo la diferencia de $Y$ en cada frame:</p>
+                <div class="formula-block">
+                    <span class="formula-label">Métrica de Aleteo</span>
+                    $$ H(t_i) = \max_{j}\left(Y_{i,j}\right) - \min_{j}\left(Y_{i,j}\right) $$
+                </div>
+
+                <h3>Transformada Discreta de Fourier (DFT)</h3>
+                <p>Con la señal $H(t)$ extraída, aplicamos la DFT para descomponer el movimiento
+                    periódico en sus componentes de frecuencia:</p>
+                <div class="formula-block">
+                    <span class="formula-label">DFT</span>
+                    $$ Y[k] = \sum_{n=0}^{N-1} H(t_n) \cdot e^{-j\,2\pi\,k\,n / N} $$
+                    <p class="formula-note">El pico dominante en el espectro $|Y[k]|$ corresponde a la frecuencia
+                        fundamental de aleteo.</p>
+                </div>
+
+                <div class="code-box">
+                    <div class="code-header">fourier_tiempo.py — Espectro</div>
+                    <pre><code class="language-python"># Restamos la media (componente DC)
+sig = H_interp - np.mean(H_interp)
+N = len(sig)
+
+# Transformada rápida para señales reales
+Y = np.fft.rfft(sig)
+freqs = np.fft.rfftfreq(N, d=1/fps)
+amps = np.abs(Y) / N
+
+# Búsqueda del pico principal
+mask_f = (freqs >= 1) & (freqs <= 20)
+f_aleteo = freqs[mask_f][np.argmax(amps[mask_f])]</code></pre>
+                </div>
+
+                <h3>Señal Temporal y Espectro de Frecuencias</h3>
+                <p>El gráfico superior muestra la señal $H(t)$ en el dominio del tiempo; el inferior,
+                    su espectro en frecuencias donde se identifica el pico de aleteo.</p>
+                <div id="plotly-fourier" class="chart-full" style="height:650px;"></div>
+
+                <h3>Diagrama de Fase del Vuelo</h3>
+                <p>Correlación paramétrica $W(t)$ vs $H(t)$. La trayectoria cíclica cerrada confirma
+                    el movimiento armónico repetitivo del aleteo.</p>
+                <div id="plotly-phase" class="chart-full" style="height:500px;"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════
+             FASE 4 — SIMULACIÓN
+             ═══════════════════════════════════════ -->
+        <section id="fase4">
+            <div class="card">
+                <span class="section-tag red">Fase 4</span>
+                <h2>Demostración Visual Final</h2>
+                <p>Al integrar los tres módulos matemáticos (CV + Splines + FFT), obtenemos una
+                    simulación que reconstruye el contorno del ave frame a frame. El panel inferior
+                    muestra en tiempo real cómo la señal $H(t)$ coincide con el movimiento biológico
+                    del cernícalo.</p>
+
+                <div class="result-highlights">
+                    <div class="result-item">
+                        <span class="result-number">120</span>
+                        <span class="result-desc">Frames procesados</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-number">100</span>
+                        <span class="result-desc">Puntos por frame</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-number">~6 Hz</span>
+                        <span class="result-desc">Frecuencia detectada</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-number">C2</span>
+                        <span class="result-desc">Continuidad verificada</span>
+                    </div>
+                </div>
+
+                <div class="video-showcase">
+                    <video controls autoplay loop muted>
+                        <source src="assets/video_aleteo_detallado.mp4" type="video/mp4">
+                        Tu navegador no soporta videos HTML5.
+                    </video>
+                    <div class="video-caption">
+                        <strong>Video:</strong> Grabación real (izq.) vs reconstrucción matemática
+                        con Splines Cúbicos (der.). Panel inferior: señal $H(t)$ en tiempo real.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Métodos Numéricos — Universidad Mayor de San Andrés (UMSA), 2026</p>
+        </footer>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="assets/datos_exportados.js"></script>
+    <script src="script.js"></script>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img src="" alt="Vista ampliada" id="lightbox-img">
+    </div>
+</body>
+
+</html>

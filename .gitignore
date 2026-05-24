@@ -1,0 +1,15 @@
+# Python
+env/
+__pycache__/
+*.pyc
+
+# Video fuente (muy pesado para Git)
+# c1.mp4
+
+# Resultados intermedios (se regeneran con los scripts)
+src/resultados/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
