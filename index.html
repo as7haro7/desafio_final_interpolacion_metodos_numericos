@@ -195,6 +195,22 @@
                     del video mediante umbralización y morfología matemática en Python (OpenCV). De cada frame se
                     extraen <strong>100 puntos equiespaciados</strong> del contorno.</p>
 
+                <h3>Video Fuente</h3>
+                <p>Este es el video original del Cernícalo Americano en vuelo cernido, grabado a
+                    <strong>30 FPS</strong>. A partir de este material se extraen los 120 frames
+                    que alimentan todo el pipeline matemático.</p>
+                <div class="video-showcase">
+                    <video controls loop muted>
+                        <source src="assets/c1.mp4" type="video/mp4">
+                        Tu navegador no soporta videos HTML5.
+                    </video>
+                    <div class="video-caption">
+                        <strong>Video fuente:</strong> Cernícalo Americano realizando vuelo cernido (hovering).
+                        Grabación original utilizada para la extracción de datos.
+                    </div>
+                </div>
+
+                <h3>Algoritmo de Segmentación</h3>
                 <div class="code-box">
                     <div class="code-header">tracking_frames.py — Segmentación</div>
                     <pre><code class="language-python">def segmentar_ave(frame):
